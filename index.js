@@ -12,16 +12,21 @@ const restify = require('restify');
 
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
-const { BotFrameworkAdapter } = require('botbuilder');
+const { BotFrameworkAdapter, UserState, MemoryStorage  } = require('botbuilder');
 
 // This bot's main dialog.
 const { EchoBot } = require('./bot');
 const { ProactiveBot } = require('./bots/proactiveBot');
-
+const { WelcomeBot } = require('./bots/welcomeBot')
 // Create the main dialog.
 const conversationReferences = {};
 const bot = new ProactiveBot(conversationReferences);
 
+const memoryStorage = new MemoryStorage();
+const userState = new UserState(memoryStorage);
+
+// Create the main dialog.
+const wbot = new WelcomeBot(userState);
 // Create HTTP server
 const server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, () => {
@@ -67,7 +72,8 @@ const myBot = new EchoBot();
 server.post('/api/messages', (req, res) => {
     adapter.processActivity(req, res, async (context) => {
         // Route to main dialog.
-        await myBot.run(context);
+        //await myBot.run(context);
+        await wbot.run(context);
     });
 });
 
